@@ -247,10 +247,6 @@ void msm_delete_stream(unsigned int session_id, unsigned int stream_id)
 	kfree(stream);
 	stream = NULL;
 	spin_unlock_irqrestore(&(session->stream_q.lock), flags);
-<<<<<<< HEAD
-=======
-
->>>>>>> 99ab0b0... compare caf camera with cm
 }
 
 static void msm_sd_unregister_subdev(struct video_device *vdev)
@@ -465,11 +461,7 @@ static inline int __msm_destroy_session_streams(void *d1, void *d2)
 	struct msm_stream *stream = d1;
 	unsigned long flags;
 
-<<<<<<< HEAD
 	pr_err("%s: Error: Destroyed list is not empty\n", __func__);
-=======
-	pr_err("%s: Destroyed here due to list is not empty\n", __func__);
->>>>>>> 99ab0b0... compare caf camera with cm
 	spin_lock_irqsave(&stream->stream_lock, flags);
 	INIT_LIST_HEAD(&stream->queued_list);
 	spin_unlock_irqrestore(&stream->stream_lock, flags);
@@ -536,14 +528,9 @@ int msm_destroy_session(unsigned int session_id)
 	if (buf_mgr_subdev) {
 		v4l2_subdev_call(buf_mgr_subdev, core, ioctl,
 			MSM_SD_SHUTDOWN, NULL);
-<<<<<<< HEAD
 	} else {
 		pr_err("%s: Buff manger device node is NULL\n", __func__);
 	}
-=======
-	} else
-		pr_err("%s: Buff manger device node is NULL\n", __func__);
->>>>>>> 99ab0b0... compare caf camera with cm
 
 	return 0;
 }
@@ -655,14 +642,10 @@ static int msm_unsubscribe_event(struct v4l2_fh *fh,
 static int msm_subscribe_event(struct v4l2_fh *fh,
 	const struct v4l2_event_subscription *sub)
 {
-<<<<<<< HEAD
-	return v4l2_event_subscribe(fh, sub, 5, NULL);
-=======
 	int rc = v4l2_event_subscribe(fh, sub, 5);
 	if (rc == 0)
 		atomic_set(&serv_running, 1);
 	return rc;
->>>>>>> 99ab0b0... compare caf camera with cm
 }
 
 static const struct v4l2_ioctl_ops g_msm_ioctl_ops = {
@@ -761,18 +744,10 @@ int msm_post_event(struct v4l2_event *event, int timeout)
 		return rc;
 	}
 
-<<<<<<< HEAD
 	/* should wait on session based condition */
 	rc = wait_event_interruptible_timeout(cmd_ack->wait,
 		!list_empty_careful(&cmd_ack->command_q.list),
 		msecs_to_jiffies(timeout));
-	if (list_empty_careful(&cmd_ack->command_q.list)) {
-		if (!rc) {
-			pr_err("%s: Timed out\n", __func__);
-=======
-	rc = wait_for_completion_timeout(&cmd_ack->wait_complete,
-		msecs_to_jiffies(timeout));
-
 	if (list_empty_careful(&cmd_ack->command_q.list)) {
 		if (!rc) {
 			pr_err("%s: Timed out: event id is %d\n",
@@ -783,14 +758,8 @@ int msm_post_event(struct v4l2_event *event, int timeout)
 			pr_err("%s: Error: No timeout but list empty!",
 					__func__);
 			msm_print_event_error(event);
->>>>>>> 99ab0b0... compare caf camera with cm
 			mutex_unlock(&session->lock);
-			return -ETIMEDOUT;
-		}
-		if (rc < 0) {
-			pr_err("%s: rc = %d\n", __func__, rc);
-			mutex_unlock(&session->lock);
-			return rc;
+			return -EINVAL;
 		}
 	}
 

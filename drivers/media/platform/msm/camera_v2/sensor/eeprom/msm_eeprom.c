@@ -100,8 +100,6 @@ static uint32_t msm_eeprom_match_crc(struct msm_eeprom_memory_block_t *data)
 	return ret;
 }
 
-<<<<<<< HEAD
-=======
 static int msm_eeprom_get_mm_data(struct msm_eeprom_ctrl_t *e_ctrl,
 				       struct msm_eeprom_cfg_data *cdata)
 {
@@ -113,7 +111,6 @@ static int msm_eeprom_get_mm_data(struct msm_eeprom_ctrl_t *e_ctrl,
 	return rc;
 }
 
->>>>>>> 99ab0b0... compare caf camera with cm
 static int eeprom_config_read_cal_data(struct msm_eeprom_ctrl_t *e_ctrl,
 				       struct msm_eeprom_cfg_data *cdata)
 {
@@ -134,15 +131,12 @@ static int eeprom_config_read_cal_data(struct msm_eeprom_ctrl_t *e_ctrl,
 		e_ctrl->cal_data.mapdata,
 		cdata->cfg.read_data.num_bytes);
 
-<<<<<<< HEAD
 	/* should only be called once.  free kernel resource */
 	if (!rc) {
 		kfree(e_ctrl->cal_data.mapdata);
 		kfree(e_ctrl->cal_data.map);
 		memset(&e_ctrl->cal_data, 0, sizeof(e_ctrl->cal_data));
 	}
-=======
->>>>>>> 99ab0b0... compare caf camera with cm
 	return rc;
 }
 
@@ -170,13 +164,10 @@ static int msm_eeprom_config(struct msm_eeprom_ctrl_t *e_ctrl,
 	case CFG_EEPROM_READ_CAL_DATA:
 		CDBG("%s E CFG_EEPROM_READ_CAL_DATA\n", __func__);
 		rc = eeprom_config_read_cal_data(e_ctrl, cdata);
-<<<<<<< HEAD
-=======
 		break;
 	case CFG_EEPROM_GET_MM_INFO:
 		CDBG("%s E CFG_EEPROM_GET_MM_INFO\n", __func__);
 		rc = msm_eeprom_get_mm_data(e_ctrl, cdata);
->>>>>>> 99ab0b0... compare caf camera with cm
 		break;
 	default:
 		break;
@@ -292,13 +283,8 @@ static int read_eeprom_memory(struct msm_eeprom_ctrl_t *e_ctrl,
 	int rc = 0;
 	int j;
 	struct msm_eeprom_memory_map_t *emap = block->map;
-<<<<<<< HEAD
-	struct msm_eeprom_board_info *eb_info;
-	uint8_t *memptr = block->mapdata;
-=======
 	uint8_t *memptr = block->mapdata;
 	struct msm_eeprom_board_info *eb_info = NULL;
->>>>>>> 99ab0b0... compare caf camera with cm
 
 	if (!e_ctrl) {
 		pr_err("%s e_ctrl is NULL", __func__);
@@ -306,7 +292,6 @@ static int read_eeprom_memory(struct msm_eeprom_ctrl_t *e_ctrl,
 	}
 
 	eb_info = e_ctrl->eboard_info;
-<<<<<<< HEAD
 
 	for (j = 0; j < block->num_map; j++) {
 		if (emap[j].saddr.addr) {
@@ -317,17 +302,6 @@ static int read_eeprom_memory(struct msm_eeprom_ctrl_t *e_ctrl,
 				eb_info->i2c_slaveaddr);
 		}
 
-=======
-	for (j = 0; j < block->num_map; j++) {
-		if (emap[j].saddr.addr) {
-			eb_info->i2c_slaveaddr = emap[j].saddr.addr;
-			e_ctrl->i2c_client.cci_client->sid =
-					eb_info->i2c_slaveaddr >> 1;
-			pr_err("qcom,slave-addr = 0x%X\n",
-				eb_info->i2c_slaveaddr);
-		}
-
->>>>>>> 99ab0b0... compare caf camera with cm
 		if (emap[j].page.valid_size) {
 			e_ctrl->i2c_client.addr_type = emap[j].page.addr_t;
 			rc = e_ctrl->i2c_client.i2c_func_tbl->i2c_write(
@@ -429,7 +403,6 @@ static int msm_eeprom_parse_memory_map(struct device_node *of,
 
 		snprintf(property, PROPERTY_MAXSIZE,
 					"qcom,pageen%d", i);
-<<<<<<< HEAD
 		rc = of_property_read_u32_array(of, property,
 			(uint32_t *) &map[i].pageen, count);
 		if (rc < 0)
@@ -438,10 +411,6 @@ static int msm_eeprom_parse_memory_map(struct device_node *of,
 		snprintf(property, PROPERTY_MAXSIZE, "qcom,saddr%d", i);
 		rc = of_property_read_u32_array(of, property,
 			(uint32_t *) &map[i].saddr.addr, 1);
-=======
-		rc = of_property_read_u32_array(of, property,
-			(uint32_t *) &map[i].pageen, count);
->>>>>>> 99ab0b0... compare caf camera with cm
 		if (rc < 0)
 			CDBG("%s: saddr not needed - block %d\n", __func__, i);
 
@@ -453,15 +422,6 @@ static int msm_eeprom_parse_memory_map(struct device_node *of,
 			goto ERROR;
 		}
 
-<<<<<<< HEAD
-=======
-		snprintf(property, PROPERTY_MAXSIZE, "qcom,saddr%d", i);
-		rc = of_property_read_u32_array(of, property,
-			(uint32_t *) &map[i].saddr.addr, 1);
-		if (rc < 0)
-			CDBG("%s: saddr not needed - block %d\n", __func__, i);
-
->>>>>>> 99ab0b0... compare caf camera with cm
 		snprintf(property, PROPERTY_MAXSIZE, "qcom,mem%d", i);
 		rc = of_property_read_u32_array(of, property,
 				(uint32_t *) &map[i].mem, count);
@@ -525,11 +485,7 @@ static int msm_eeprom_i2c_probe(struct i2c_client *client,
 	}
 	e_ctrl->eeprom_v4l2_subdev_ops = &msm_eeprom_subdev_ops;
 	e_ctrl->eeprom_mutex = &msm_eeprom_mutex;
-<<<<<<< HEAD
 	CDBG("%s client = 0x%p\n", __func__, client);
-=======
-	CDBG("%s client = %x\n", __func__, (unsigned int)client);
->>>>>>> 99ab0b0... compare caf camera with cm
 	e_ctrl->eboard_info = (struct msm_eeprom_board_info *)(id->driver_data);
 	if (!e_ctrl->eboard_info) {
 		pr_err("%s:%d board info NULL\n", __func__, __LINE__);
@@ -644,91 +600,8 @@ static int msm_eeprom_match_id(struct msm_eeprom_ctrl_t *e_ctrl)
 	if (id[0] != client->spi_client->mfr_id
 		    || id[1] != client->spi_client->device_id)
 		return -ENODEV;
-<<<<<<< HEAD
-=======
 
 	return 0;
-}
-
-static int msm_eeprom_get_dt_data(struct msm_eeprom_ctrl_t *e_ctrl)
-{
-	int rc = 0, i = 0;
-	struct msm_eeprom_board_info *eb_info;
-	struct msm_camera_power_ctrl_t *power_info =
-		&e_ctrl->eboard_info->power_info;
-	struct device_node *of_node = NULL;
-	struct msm_camera_gpio_conf *gconf = NULL;
-	uint16_t gpio_array_size = 0;
-	uint16_t *gpio_array = NULL;
-
-	eb_info = e_ctrl->eboard_info;
-	if (e_ctrl->eeprom_device_type == MSM_CAMERA_SPI_DEVICE)
-		of_node = e_ctrl->i2c_client.
-			spi_client->spi_master->dev.of_node;
-	else if (e_ctrl->eeprom_device_type == MSM_CAMERA_PLATFORM_DEVICE)
-		of_node = e_ctrl->pdev->dev.of_node;
-
-	rc = msm_camera_get_dt_vreg_data(of_node, &power_info->cam_vreg,
-					     &power_info->num_vreg);
-	if (rc < 0)
-		return rc;
-
-	rc = msm_camera_get_dt_power_setting_data(of_node,
-		power_info->cam_vreg, power_info->num_vreg,
-		power_info);
-	if (rc < 0)
-		goto ERROR1;
-
-	power_info->gpio_conf = kzalloc(sizeof(struct msm_camera_gpio_conf),
-					GFP_KERNEL);
-	if (!power_info->gpio_conf) {
-		rc = -ENOMEM;
-		goto ERROR2;
-	}
-	gconf = power_info->gpio_conf;
-	gpio_array_size = of_gpio_count(of_node);
-	CDBG("%s gpio count %d\n", __func__, gpio_array_size);
->>>>>>> 99ab0b0... compare caf camera with cm
-
-	if (gpio_array_size) {
-		gpio_array = kzalloc(sizeof(uint16_t) * gpio_array_size,
-			GFP_KERNEL);
-		if (!gpio_array) {
-			pr_err("%s failed %d\n", __func__, __LINE__);
-			goto ERROR3;
-		}
-		for (i = 0; i < gpio_array_size; i++) {
-			gpio_array[i] = of_get_gpio(of_node, i);
-			CDBG("%s gpio_array[%d] = %d\n", __func__, i,
-				gpio_array[i]);
-		}
-
-		rc = msm_camera_get_dt_gpio_req_tbl(of_node, gconf,
-			gpio_array, gpio_array_size);
-		if (rc < 0) {
-			pr_err("%s failed %d\n", __func__, __LINE__);
-			goto ERROR4;
-		}
-
-		rc = msm_camera_init_gpio_pin_tbl(of_node, gconf,
-			gpio_array, gpio_array_size);
-		if (rc < 0) {
-			pr_err("%s failed %d\n", __func__, __LINE__);
-			goto ERROR4;
-		}
-		kfree(gpio_array);
-	}
-
-	return rc;
-ERROR4:
-	kfree(gpio_array);
-ERROR3:
-	kfree(power_info->gpio_conf);
-ERROR2:
-	kfree(power_info->cam_vreg);
-ERROR1:
-	kfree(power_info->power_setting);
-	return rc;
 }
 
 static int msm_eeprom_mm_dts(struct msm_eeprom_board_info *eb_info,

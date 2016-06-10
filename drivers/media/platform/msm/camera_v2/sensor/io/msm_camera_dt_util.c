@@ -1187,13 +1187,6 @@ int msm_camera_power_down(struct msm_camera_power_ctrl_t *ctrl,
 				continue;
 			}
 			if (!ctrl->gpio_conf->gpio_num_info->valid
-<<<<<<< HEAD
-				[power_setting->seq_val])
-				continue;
-			gpio_set_value_cansleep(
-				ctrl->gpio_conf->gpio_num_info->gpio_num
-				[power_setting->seq_val], GPIOF_OUT_INIT_LOW);
-=======
 				[pd->seq_val])
 				continue;
 			gpio_set_value_cansleep(
@@ -1201,7 +1194,6 @@ int msm_camera_power_down(struct msm_camera_power_ctrl_t *ctrl,
 				[pd->seq_val],
 				ctrl->gpio_conf->gpio_num_info->gpio_num
 				[pd->config_val]);
->>>>>>> 99ab0b0... compare caf camera with cm
 			break;
 		case SENSOR_VREG:
 			if (pd->seq_val >= CAM_VREG_MAX) {

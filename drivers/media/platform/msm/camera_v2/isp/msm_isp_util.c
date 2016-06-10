@@ -24,13 +24,10 @@
 static DEFINE_MUTEX(bandwidth_mgr_mutex);
 static struct msm_isp_bandwidth_mgr isp_bandwidth_mgr;
 
-<<<<<<< HEAD
 #define MSM_ISP_MIN_AB 300000000
 #define MSM_ISP_MIN_IB 450000000
 #define AVTIMER_TICK_RES_PER_USEC 27
 
-=======
->>>>>>> 99ab0b0... compare caf camera with cm
 #define VFE40_8974V2_VERSION 0x1001001A
 
 static struct msm_bus_vectors msm_isp_init_vectors[] = {
@@ -259,46 +256,7 @@ int msm_isp_unsubscribe_event(struct v4l2_subdev *sd, struct v4l2_fh *fh,
 	}
 	return rc;
 }
-/*
-static int msm_isp_get_max_clk_rate(struct vfe_device *vfe_dev, long *rate)
-{
-	int           clk_idx = 0;
-	unsigned long max_value = ~0;
-	long          round_rate = 0;
 
-	if (!vfe_dev || !rate) {
-		pr_err("%s:%d failed: vfe_dev %p rate %p\n", __func__, __LINE__,
-			vfe_dev, rate);
-		return -EINVAL;
-	}
-
-	*rate = 0;
-	if (!vfe_dev->hw_info) {
-		pr_err("%s:%d failed: vfe_dev->hw_info %p\n", __func__,
-			__LINE__, vfe_dev->hw_info);
-		return -EINVAL;
-	}
-
-	clk_idx = vfe_dev->hw_info->vfe_clk_idx;
-	if (clk_idx >= ARRAY_SIZE(vfe_dev->vfe_clk)) {
-		pr_err("%s:%d failed: clk_idx %d max array size %d\n",
-			__func__, __LINE__, clk_idx,
-			ARRAY_SIZE(vfe_dev->vfe_clk));
-		return -EINVAL;
-	}
-
-	round_rate = clk_round_rate(vfe_dev->vfe_clk[clk_idx], max_value);
-	if (round_rate < 0) {
-		pr_err("%s: Invalid vfe clock rate\n", __func__);
-		return -EINVAL;
-	}
-
-<<<<<<< HEAD
-	*rate = round_rate;
-	return 0;
-}
-*/
-=======
 static int msm_isp_get_max_clk_rate(struct vfe_device *vfe_dev, long *rate)
 {
 	int           clk_idx = 0;
@@ -336,7 +294,6 @@ static int msm_isp_get_max_clk_rate(struct vfe_device *vfe_dev, long *rate)
 	return 0;
 }
 
->>>>>>> 99ab0b0... compare caf camera with cm
 static int msm_isp_set_clk_rate(struct vfe_device *vfe_dev, long *rate)
 {
 	int rc = 0;
@@ -776,31 +733,7 @@ static int msm_isp_send_hw_cmd(struct vfe_device *vfe_dev,
 	}
 	case GET_SOC_HW_VER:
 		*cfg_data = vfe_dev->soc_hw_version;
-/*		break;
-	case GET_MAX_CLK_RATE: {
-		int rc = 0;
-
-		if (cmd_len < sizeof(unsigned long)) {
-			pr_err("%s:%d failed: invalid cmd len %u exp %zu\n",
-				__func__, __LINE__, cmd_len,
-				sizeof(unsigned long));
-			return -EINVAL;
-		}
-		rc = msm_isp_get_max_clk_rate(vfe_dev,
-			(unsigned long *)cfg_data);
-		if (rc < 0) {
-			pr_err("%s:%d failed: rc %d\n", __func__, __LINE__, rc);
-			return -EINVAL;
-		}
 		break;
-	}
-<<<<<<< HEAD
-	case GET_ISP_ID: {
-		uint32_t *isp_id = NULL;
-
-		if (cmd_len < sizeof(uint32_t)) {
-			pr_err("%s:%d failed: invalid cmd len %u exp %u\n",
-=======
 	case GET_MAX_CLK_RATE: {
 		int rc = 0;
 
@@ -821,22 +754,14 @@ static int msm_isp_send_hw_cmd(struct vfe_device *vfe_dev,
 	case SET_WM_UB_SIZE: {
 	  	  if (cmd_len < sizeof(uint32_t)) {
 			pr_err("%s:%d failed: invalid cmd len %u exp %zu\n",
->>>>>>> 99ab0b0... compare caf camera with cm
 				__func__, __LINE__, cmd_len,
 				sizeof(uint32_t));
 			return -EINVAL;
 		}
-<<<<<<< HEAD
-
-		isp_id = (uint32_t *)cfg_data;
-		*isp_id = vfe_dev->pdev->id;
-=======
 		vfe_dev->vfe_ub_size = *cfg_data;
 		break;
 	}
->>>>>>> 99ab0b0... compare caf camera with cm
 	}
-*/	}
 	return 0;
 }
 
@@ -1013,11 +938,7 @@ int msm_isp_cal_word_per_line(uint32_t output_format,
 	case V4L2_PIX_FMT_UYVY:
 	case V4L2_PIX_FMT_VYUY:
 		val = CAL_WORD(pixel_per_line, 2, 8);
-<<<<<<< HEAD
 	break;
-=======
-		break;
->>>>>>> 99ab0b0... compare caf camera with cm
 		/*TD: Add more image format*/
 	default:
 		msm_isp_print_fourcc_error(__func__, output_format);
@@ -1321,14 +1242,11 @@ irqreturn_t msm_isp_process_irq(int irq_num, void *data)
 
 	vfe_dev->hw_info->vfe_ops.irq_ops.
 		read_irq_status(vfe_dev, &irq_status0, &irq_status1);
-<<<<<<< HEAD
-=======
 	if ((irq_status0 == 0) && (irq_status1 == 0)) {
 		ISP_DBG("%s: irq_status0 & 1 are both 0\n",
 			__func__);
 		return IRQ_HANDLED;
 	}
->>>>>>> 99ab0b0... compare caf camera with cm
 	msm_isp_process_overflow_irq(vfe_dev,
 		&irq_status0, &irq_status1);
 	vfe_dev->hw_info->vfe_ops.core_ops.

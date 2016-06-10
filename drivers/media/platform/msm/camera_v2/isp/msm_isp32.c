@@ -827,11 +827,6 @@ static void msm_vfe32_cfg_axi_ub(struct vfe_device *vfe_dev)
 	}
 }
 
-<<<<<<< HEAD
-static void msm_vfe32_update_ping_pong_addr(
-	struct vfe_device *vfe_dev,
-	uint8_t wm_idx, uint32_t pingpong_status, unsigned long paddr)
-=======
 static void msm_vfe32_cfg_axi_ub(struct vfe_device *vfe_dev)
 {
 	struct msm_vfe_axi_shared_data *axi_data = &vfe_dev->axi_data;
@@ -842,9 +837,9 @@ static void msm_vfe32_cfg_axi_ub(struct vfe_device *vfe_dev)
 		msm_vfe32_cfg_axi_ub_equal_default(vfe_dev);
 }
 
-static void msm_vfe32_update_ping_pong_addr(struct vfe_device *vfe_dev,
-		uint8_t wm_idx, uint32_t pingpong_status, unsigned long paddr)
->>>>>>> 99ab0b0... compare caf camera with cm
+static void msm_vfe32_update_ping_pong_addr(
+	struct vfe_device *vfe_dev,
+	uint8_t wm_idx, uint32_t pingpong_status, unsigned long paddr)
 {
 	uint32_t paddr32 = (paddr & 0xFFFFFFFF);
 	msm_camera_io_w(paddr32, vfe_dev->vfe_base +

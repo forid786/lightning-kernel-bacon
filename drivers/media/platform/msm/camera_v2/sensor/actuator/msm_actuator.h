@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-/* Copyright (c) 2011-2013, The Linux Foundation. All rights reserved.
-=======
 /* Copyright (c) 2011-2014, The Linux Foundation. All rights reserved.
->>>>>>> 99ab0b0... compare caf camera with cm
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -34,13 +30,8 @@
 struct msm_actuator_ctrl_t;
 
 enum msm_actuator_state_t {
-<<<<<<< HEAD
-	ACTUATOR_POWER_UP,
-	ACTUATOR_POWER_DOWN,
-=======
 	ACTUATOR_POWER_DOWN,
 	ACTUATOR_POWER_UP,
->>>>>>> 99ab0b0... compare caf camera with cm
 };
 
 struct msm_actuator_func_tbl {
@@ -108,17 +99,13 @@ struct msm_actuator_ctrl_t {
 	uint16_t i2c_tbl_index;
 	enum cci_i2c_master_t cci_master;
 	uint32_t subdev_id;
-<<<<<<< HEAD
 	enum msm_actuator_state_t actuator_state;
-=======
->>>>>>> 99ab0b0... compare caf camera with cm
 	struct msm_actuator_vreg vreg_cfg;
 	/*muyuezhong,2015/02/07,Add for close camera click*/
 	#ifdef CONFIG_MACH_OPPO
     	uint16_t current_lens_pos;
     	uint32_t hw_params;
 	#endif
-	enum msm_actuator_state_t actuator_state;
 };
 
 #endif

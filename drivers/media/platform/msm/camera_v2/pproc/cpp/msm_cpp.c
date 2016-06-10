@@ -499,12 +499,7 @@ static int cpp_init_mem(struct cpp_device *cpp_dev)
 	int rc = 0;
 
 	kref_init(&cpp_dev->refcount);
-<<<<<<< HEAD
-	cpp_dev->client = msm_ion_client_create("cpp");
-=======
-	kref_get(&cpp_dev->refcount);
 	cpp_dev->client = msm_ion_client_create(-1, "cpp");
->>>>>>> 99ab0b0... compare caf camera with cm
 
 	CPP_DBG("E\n");
 	if (!cpp_dev->domain) {
@@ -1373,8 +1368,7 @@ static int msm_cpp_cfg(struct cpp_device *cpp_dev,
 		goto ERROR2;
 	}
 
-<<<<<<< HEAD
-//	if (new_frame->output_buffer_info[0].native_buff == 0) {
+	if (new_frame->output_buffer_info[0].native_buff == 0) {
 		memset(&buff_mgr_info, 0, sizeof(struct msm_buf_mngr_info));
 		buff_mgr_info.session_id = ((new_frame->identity >> 16) &
 			0xFFFF);
@@ -1387,21 +1381,8 @@ static int msm_cpp_cfg(struct cpp_device *cpp_dev,
 			goto ERROR2;
 		}
 		new_frame->output_buffer_info[0].index = buff_mgr_info.index;
-//	}
-
-=======
-	memset(&buff_mgr_info, 0, sizeof(struct msm_buf_mngr_info));
-	buff_mgr_info.session_id = ((new_frame->identity >> 16) & 0xFFFF);
-	buff_mgr_info.stream_id = (new_frame->identity & 0xFFFF);
-	rc = msm_cpp_buffer_ops(cpp_dev, VIDIOC_MSM_BUF_MNGR_GET_BUF,
-		&buff_mgr_info);
-	if (rc < 0) {
-		rc = -EAGAIN;
-		pr_debug("error getting buffer rc:%d\n", rc);
-		goto ERROR2;
 	}
-	new_frame->output_buffer_info[0].index = buff_mgr_info.index;
->>>>>>> 99ab0b0... compare caf camera with cm
+
 	out_phyaddr0 = msm_cpp_fetch_buffer_info(cpp_dev,
 		&new_frame->output_buffer_info[0],
 		((new_frame->identity >> 16) & 0xFFFF),
@@ -1711,16 +1692,10 @@ long msm_cpp_subdev_ioctl(struct v4l2_subdev *sd,
 			msm_cpp_clear_timer(cpp_dev);
 			msm_cpp_clean_queue(cpp_dev);
 		}
-<<<<<<< HEAD
 
 		if (cmd != VIDIOC_MSM_CPP_APPEND_STREAM_BUFF_INFO) {
 			cpp_dev->stream_cnt++;
 			pr_err("stream_cnt:%d\n", cpp_dev->stream_cnt);
-=======
-		if (cmd != VIDIOC_MSM_CPP_APPEND_STREAM_BUFF_INFO) {
-			cpp_dev->stream_cnt++;
-			pr_debug("stream_cnt:%d\n", cpp_dev->stream_cnt);
->>>>>>> 99ab0b0... compare caf camera with cm
 		}
 		break;
 	}
@@ -2178,18 +2153,11 @@ static int cpp_probe(struct platform_device *pdev)
 	cpp_dev->timer_wq = create_workqueue("msm_cpp_workqueue");
 	cpp_dev->work = kmalloc(sizeof(struct msm_cpp_work_t),
 		GFP_KERNEL);
-<<<<<<< HEAD
 
 	if (!cpp_dev->work) {
 		pr_err("no enough memory\n");
 		rc = -ENOMEM;
 		goto CPP_PROBE_INIT_ERROR;
-=======
-	if (!cpp_dev->work) {
-		pr_err("cpp_dev->work is NULL\n");
-		rc = -ENOMEM;
-		goto ERROR3;
->>>>>>> 99ab0b0... compare caf camera with cm
 	}
 
 	INIT_WORK((struct work_struct *)cpp_dev->work, msm_cpp_do_timeout_work);
