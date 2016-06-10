@@ -642,10 +642,7 @@ static int msm_unsubscribe_event(struct v4l2_fh *fh,
 static int msm_subscribe_event(struct v4l2_fh *fh,
 	const struct v4l2_event_subscription *sub)
 {
-	int rc = v4l2_event_subscribe(fh, sub, 5);
-	if (rc == 0)
-		atomic_set(&serv_running, 1);
-	return rc;
+	return v4l2_event_subscribe(fh, sub, 5, NULL);;
 }
 
 static const struct v4l2_ioctl_ops g_msm_ioctl_ops = {

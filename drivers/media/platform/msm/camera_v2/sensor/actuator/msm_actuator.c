@@ -803,11 +803,6 @@ static int32_t msm_actuator_config(struct msm_actuator_ctrl_t *a_ctrl,
 		if (rc < 0)
 			pr_err("move focus failed %d\n", rc);
 		break;
-	case CFG_ACTUATOR_POWERDOWN:
-		rc = msm_actuator_power_down(a_ctrl);
-		if (rc < 0)
-			pr_err("msm_actuator_power_down failed %d\n", rc);
-		break;
 
 	case CFG_SET_POSITION:
 		rc = a_ctrl->func_tbl->actuator_set_position(a_ctrl,

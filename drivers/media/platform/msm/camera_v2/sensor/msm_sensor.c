@@ -1125,110 +1125,6 @@ static struct msm_camera_i2c_fn_t msm_sensor_qup_func_tbl = {
 	.i2c_write_conf_tbl = msm_camera_qup_i2c_write_conf_tbl,
 };
 
-#if CONFIG_MACH_OPPO
-//jindian.guan@Camera, 2014/04/14, Add proc for sensor state
-#include <linux/proc_fs.h>
-#define PAGESIZE 512
-static int sensor_proc_read(struct file *file, char __user *user_buf, size_t count, loff_t *ppos)
-{
-	int len = 0;
-	char page[PAGESIZE];
-
-	if (gs_ctrl_back == NULL)
-	{
-		pr_err("gs_ctrl is NULL \n");
-		return 0;
-	}
-	len = sprintf(page, "%d",gs_ctrl_back->sensor_state);
-	len = simple_read_from_buffer(user_buf, count, ppos, page, strlen(page));
-	return len;
-}
-
-static int sensor_proc_write(struct file *file, const char __user *buffer, size_t count, loff_t *ppos)
-{
-	return 0;
-}
-static int sensor_proc_read_front(struct file *file, char __user *user_buf, size_t count, loff_t *ppos)
-{
-	int len = 0;
-	char page[PAGESIZE];
-
-	if (gs_ctrl_front == NULL)
-	{
-		pr_err("gs_ctrl is NULL \n");
-		return 0;
-	}
-	len = sprintf(page, "%d",gs_ctrl_front->sensor_state);
-	len = simple_read_from_buffer(user_buf, count, ppos, page, strlen(page));
-	return len;
-}
-
-static int sensor_proc_write_front(struct file *file, const char __user *buffer, size_t count, loff_t *ppos)
-{
-	return 0;
-}
-
-static const struct file_operations sensor_fops = {
-	.write = sensor_proc_write,
-	.read =  sensor_proc_read,
-	.open = simple_open,
-	.owner = THIS_MODULE,
-};
-
-static const struct file_operations sensor1_fops = {
-	.write = sensor_proc_write_front,
-	.read =  sensor_proc_read_front,
-	.open = simple_open,
-	.owner = THIS_MODULE,
-};
-
-static int sensor_proc_init(struct msm_sensor_ctrl_t *sensor_ctl)
-{
-	int ret=0;
-	static int temp=0;
-	struct proc_dir_entry *proc_entry=NULL;
-	if(0==temp)
-	 {
-	   proc_entry= proc_create( "qcom_sensor_state", 0666, NULL, &sensor_fops);
-
-	   if(proc_entry == NULL)
-	    {
-		  ret = -ENOMEM;
-	  	  pr_err("[%s]: Error! Couldn't create qcom_sensor_state proc entry\n", __func__);
-	    }
-	   else
-	    {
-	      gs_ctrl_back=sensor_ctl;
-	      temp++;
-		  pr_err("[%s]: create qcom_sensor_state proc success \n", __func__);
-	    }
-	  }
-	else if(1==temp)
-		{
-		proc_entry= proc_create( "qcom_sensor_state_1", 0666, NULL, &sensor1_fops);
-
-	   if(proc_entry == NULL)
-	    {
-		  ret = -ENOMEM;
-	  	  pr_err("[%s]: Error! Couldn't create qcom_sensor_state_1 proc entry\n", __func__);
-	    }
-	   else
-	    {
-	      gs_ctrl_front = sensor_ctl;
-	      temp++;
-		  pr_err("[%s]: create qcom_sensor_state_1 proc success \n", __func__);
-	    }
-	   }
-	else
-	 	{
-	 	 pr_err("[%s]: temp=%d \n", __func__,temp);
-	 	 return 0;
-	 	}
-
-	return ret;
-}
-#endif
-
 int32_t msm_sensor_platform_probe(struct platform_device *pdev,
 				  const void *data)
 {
@@ -1311,6 +1207,7 @@ int32_t msm_sensor_platform_probe(struct platform_device *pdev,
 	mount_pos = mount_pos |
 	((s_ctrl->sensordata->sensor_info->sensor_mount_angle / 90) << 8);
 	s_ctrl->msm_sd.sd.entity.flags = mount_pos | MEDIA_ENT_FL_DEFAULT;
+
 	rc = camera_init_v4l2(&s_ctrl->pdev->dev, &session_id);
 	CDBG("%s rc %d session_id %d\n", __func__, rc, session_id);
 	s_ctrl->sensordata->sensor_info->session_id = session_id;
@@ -1320,9 +1217,6 @@ int32_t msm_sensor_platform_probe(struct platform_device *pdev,
 
 	s_ctrl->func_tbl->sensor_power_down(s_ctrl);
 	CDBG("%s:%d\n", __func__, __LINE__);
-#ifdef CONFIG_MACH_OPPO
-	sensor_proc_init(s_ctrl);
-#endif
 	return rc;
 }
 
