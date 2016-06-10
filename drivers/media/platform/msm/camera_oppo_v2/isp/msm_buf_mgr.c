@@ -603,11 +603,15 @@ static int msm_isp_buf_enqueue(struct msm_isp_buf_mgr *buf_mgr,
 		}
 	} else {
 		bufq = msm_isp_get_bufq(buf_mgr, info->handle);
+<<<<<<< HEAD
 		if (!bufq) {
 			pr_err("%s: Invalid bufq\n", __func__);
 			return rc;
 			}
 		if (BUF_SRC(bufq->stream_id)) {
+=======
+		if (bufq && BUF_SRC(bufq->stream_id)) {
+>>>>>>> 99ab0b0... compare caf camera with cm
 			rc = msm_isp_put_buf(buf_mgr,
 					info->handle, info->buf_idx);
 			if (rc < 0) {

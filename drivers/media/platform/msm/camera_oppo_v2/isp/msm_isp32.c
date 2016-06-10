@@ -74,6 +74,8 @@ static int msm_vfe32_init_hardware(struct vfe_device *vfe_dev)
 			goto fs_failed;
 		}
 	}
+	else
+		goto fs_failed;
 
 	rc = msm_cam_clk_enable(&vfe_dev->pdev->dev, msm_vfe32_1_clk_info,
 		 vfe_dev->vfe_clk, ARRAY_SIZE(msm_vfe32_1_clk_info), 1);
@@ -170,15 +172,15 @@ static void msm_vfe32_process_camif_irq(struct vfe_device *vfe_dev,
 	uint32_t irq_status0, uint32_t irq_status1,
 	struct msm_isp_timestamp *ts)
 {
+	uint32_t cnt;
 	if (!(irq_status0 & 0x1F))
 		return;
 
 	if (irq_status0 & BIT(0)) {
 		ISP_DBG("%s: SOF IRQ\n", __func__);
-		if (vfe_dev->axi_data.src_info[VFE_PIX_0].raw_stream_count > 0
-			&& vfe_dev->axi_data.src_info[VFE_PIX_0].
-			pix_stream_count == 0) {
-			msm_isp_sof_notify(vfe_dev, VFE_PIX_0, ts);
+		cnt = vfe_dev->axi_data.src_info[VFE_PIX_0].raw_stream_count;
+		if (cnt > 0) {
+			msm_isp_sof_notify(vfe_dev, VFE_RAW_0, ts);
 			if (vfe_dev->axi_data.stream_update)
 				msm_isp_axi_stream_update(vfe_dev);
 			msm_isp_update_framedrop_reg(vfe_dev);
@@ -381,8 +383,8 @@ static long msm_vfe32_reset_hardware(struct vfe_device *vfe_dev ,
 		reset_type = ISP_RST_HARD;
 	}
 	rst_val = msm_vfe32_reset_values[reset_type];
-	init_completion(&vfe_dev->reset_complete);
 	if (blocking) {
+		init_completion(&vfe_dev->reset_complete);
 		msm_camera_io_w_mb(rst_val, vfe_dev->vfe_base + 0x4);
 		rc = wait_for_completion_timeout(
 		   &vfe_dev->reset_complete, msecs_to_jiffies(50));
@@ -825,9 +827,24 @@ static void msm_vfe32_cfg_axi_ub(struct vfe_device *vfe_dev)
 	}
 }
 
+<<<<<<< HEAD
 static void msm_vfe32_update_ping_pong_addr(
 	struct vfe_device *vfe_dev,
 	uint8_t wm_idx, uint32_t pingpong_status, unsigned long paddr)
+=======
+static void msm_vfe32_cfg_axi_ub(struct vfe_device *vfe_dev)
+{
+	struct msm_vfe_axi_shared_data *axi_data = &vfe_dev->axi_data;
+	axi_data->wm_ub_cfg_policy = MSM_WM_UB_CFG_DEFAULT;
+	if (axi_data->wm_ub_cfg_policy == MSM_WM_UB_EQUAL_SLICING)
+		msm_vfe32_cfg_axi_ub_equal_slicing(vfe_dev);
+	else
+		msm_vfe32_cfg_axi_ub_equal_default(vfe_dev);
+}
+
+static void msm_vfe32_update_ping_pong_addr(struct vfe_device *vfe_dev,
+		uint8_t wm_idx, uint32_t pingpong_status, unsigned long paddr)
+>>>>>>> 99ab0b0... compare caf camera with cm
 {
 	uint32_t paddr32 = (paddr & 0xFFFFFFFF);
 	msm_camera_io_w(paddr32, vfe_dev->vfe_base +

@@ -36,6 +36,7 @@ static struct v4l2_device *msm_v4l2_dev;
 static struct list_head    ordered_sd_list;
 
 static struct msm_queue_head *msm_session_q;
+static atomic_t serv_running;
 
 /* config node envent queue */
 static struct v4l2_fh  *msm_eventq;
@@ -246,6 +247,10 @@ void msm_delete_stream(unsigned int session_id, unsigned int stream_id)
 	kfree(stream);
 	stream = NULL;
 	spin_unlock_irqrestore(&(session->stream_q.lock), flags);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 99ab0b0... compare caf camera with cm
 }
 
 static void msm_sd_unregister_subdev(struct video_device *vdev)
@@ -460,7 +465,11 @@ static inline int __msm_destroy_session_streams(void *d1, void *d2)
 	struct msm_stream *stream = d1;
 	unsigned long flags;
 
+<<<<<<< HEAD
 	pr_err("%s: Error: Destroyed list is not empty\n", __func__);
+=======
+	pr_err("%s: Destroyed here due to list is not empty\n", __func__);
+>>>>>>> 99ab0b0... compare caf camera with cm
 	spin_lock_irqsave(&stream->stream_lock, flags);
 	INIT_LIST_HEAD(&stream->queued_list);
 	spin_unlock_irqrestore(&stream->stream_lock, flags);
@@ -527,9 +536,14 @@ int msm_destroy_session(unsigned int session_id)
 	if (buf_mgr_subdev) {
 		v4l2_subdev_call(buf_mgr_subdev, core, ioctl,
 			MSM_SD_SHUTDOWN, NULL);
+<<<<<<< HEAD
 	} else {
 		pr_err("%s: Buff manger device node is NULL\n", __func__);
 	}
+=======
+	} else
+		pr_err("%s: Buff manger device node is NULL\n", __func__);
+>>>>>>> 99ab0b0... compare caf camera with cm
 
 	return 0;
 }
@@ -632,13 +646,23 @@ static long msm_private_ioctl(struct file *file, void *fh,
 static int msm_unsubscribe_event(struct v4l2_fh *fh,
 	const struct v4l2_event_subscription *sub)
 {
-	return v4l2_event_unsubscribe(fh, sub);
+	int rc = v4l2_event_unsubscribe(fh, sub);
+	if (rc == 0)
+		 atomic_set(&serv_running, 0);
+	return rc;
 }
 
 static int msm_subscribe_event(struct v4l2_fh *fh,
 	const struct v4l2_event_subscription *sub)
 {
+<<<<<<< HEAD
 	return v4l2_event_subscribe(fh, sub, 5, NULL);
+=======
+	int rc = v4l2_event_subscribe(fh, sub, 5);
+	if (rc == 0)
+		atomic_set(&serv_running, 1);
+	return rc;
+>>>>>>> 99ab0b0... compare caf camera with cm
 }
 
 static const struct v4l2_ioctl_ops g_msm_ioctl_ops = {
@@ -661,6 +685,18 @@ static unsigned int msm_poll(struct file *f,
 		rc = POLLIN | POLLRDNORM;
 
 	return rc;
+}
+
+static void msm_print_event_error(struct v4l2_event *event)
+{
+	struct msm_v4l2_event_data *event_data =
+		(struct msm_v4l2_event_data *)&event->u.data[0];
+
+	pr_err("Evt_type=%x Evt_id=%d Evt_cmd=%x\n", event->type,
+		event->id, event_data->command);
+	pr_err("Evt_session_id=%d Evt_stream_id=%d Evt_arg=%d\n",
+		event_data->session_id, event_data->stream_id,
+		event_data->arg_value);
 }
 
 /* something seriously wrong if msm_close is triggered
@@ -686,7 +722,7 @@ int msm_post_event(struct v4l2_event *event, int timeout)
 		spin_unlock_irqrestore(&msm_eventq_lock, flags);
 		pr_err("%s : msm event queue not available Line %d\n",
 				__func__, __LINE__);
-		return -ENODEV;
+		return -EIO;
 	}
 	spin_unlock_irqrestore(&msm_eventq_lock, flags);
 
@@ -698,6 +734,11 @@ int msm_post_event(struct v4l2_event *event, int timeout)
 	if (WARN_ON(!session)) {
 		pr_err("%s : session not found Line %d\n",
 				__func__, __LINE__);
+		return -EIO;
+	}
+
+	if (!atomic_read(&serv_running)) {
+		pr_info("%s: daemon hasn't subscribed yet!\n", __func__);
 		return -EIO;
 	}
 	mutex_lock(&session->lock);
@@ -720,6 +761,7 @@ int msm_post_event(struct v4l2_event *event, int timeout)
 		return rc;
 	}
 
+<<<<<<< HEAD
 	/* should wait on session based condition */
 	rc = wait_event_interruptible_timeout(cmd_ack->wait,
 		!list_empty_careful(&cmd_ack->command_q.list),
@@ -727,6 +769,21 @@ int msm_post_event(struct v4l2_event *event, int timeout)
 	if (list_empty_careful(&cmd_ack->command_q.list)) {
 		if (!rc) {
 			pr_err("%s: Timed out\n", __func__);
+=======
+	rc = wait_for_completion_timeout(&cmd_ack->wait_complete,
+		msecs_to_jiffies(timeout));
+
+	if (list_empty_careful(&cmd_ack->command_q.list)) {
+		if (!rc) {
+			pr_err("%s: Timed out: event id is %d\n",
+				__func__, event->id);
+			msm_print_event_error(event);
+			rc = -ETIMEDOUT;
+		} else {
+			pr_err("%s: Error: No timeout but list empty!",
+					__func__);
+			msm_print_event_error(event);
+>>>>>>> 99ab0b0... compare caf camera with cm
 			mutex_unlock(&session->lock);
 			return -ETIMEDOUT;
 		}
@@ -1044,11 +1101,14 @@ static int msm_probe(struct platform_device *pdev)
 #endif
 
 	atomic_set(&pvdev->opened, 0);
+	atomic_set(&serv_running, 0);
 	video_set_drvdata(pvdev->vdev, pvdev);
 
 	msm_session_q = kzalloc(sizeof(*msm_session_q), GFP_KERNEL);
-	if (WARN_ON(!msm_session_q))
-		goto v4l2_fail;
+	if (WARN_ON(!msm_session_q)) {
+		rc = -ENOMEM;
+		goto session_fail;
+	}
 
 	msm_init_queue(msm_session_q);
 	spin_lock_init(&msm_eventq_lock);
@@ -1056,6 +1116,8 @@ static int msm_probe(struct platform_device *pdev)
 	INIT_LIST_HEAD(&ordered_sd_list);
 	goto probe_end;
 
+session_fail:
+	video_unregister_device(pvdev->vdev);
 v4l2_fail:
 	v4l2_device_unregister(pvdev->vdev->v4l2_dev);
 register_fail:

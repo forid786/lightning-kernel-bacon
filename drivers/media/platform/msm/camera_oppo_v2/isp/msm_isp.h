@@ -326,6 +326,7 @@ struct msm_vfe_src_info {
 	uint32_t width;
 	long pixel_clock;
 	uint32_t input_format;/*V4L2 pix format with bayer pattern*/
+	uint32_t last_updt_frm_id;
 };
 
 enum msm_wm_ub_cfg_type {
@@ -351,6 +352,7 @@ struct msm_vfe_axi_shared_data {
 	struct msm_vfe_src_info src_info[VFE_SRC_MAX];
 	uint16_t stream_handle_cnt;
 	unsigned long event_mask;
+	uint32_t burst_len;
 };
 
 struct msm_vfe_stats_hardware_info {
@@ -393,6 +395,7 @@ struct msm_vfe_stats_shared_data {
 	uint16_t stream_handle_cnt;
 	atomic_t stats_update;
 	uint32_t stats_mask;
+	uint32_t stats_burst_len;
 };
 
 struct msm_vfe_tasklet_queue_cmd {
@@ -477,8 +480,7 @@ struct vfe_device {
 	struct list_head tasklet_q;
 	struct tasklet_struct vfe_tasklet;
 	struct msm_vfe_tasklet_queue_cmd
-		tasklet_queue_cmd[MSM_VFE_TASKLETQ_SIZE];
-
+	tasklet_queue_cmd[MSM_VFE_TASKLETQ_SIZE];
 	uint32_t soc_hw_version;
 	uint32_t vfe_hw_version;
 	struct msm_vfe_hardware_info *hw_info;
@@ -493,6 +495,7 @@ struct vfe_device {
 	uint8_t vt_enable;
 	uint8_t ignore_error;
 	struct msm_isp_statistics *stats;
+	uint32_t vfe_ub_size;
 };
 
 #endif

@@ -138,7 +138,7 @@ struct msm_cpp_tasklet_queue_cmd {
 
 struct msm_cpp_buffer_map_info_t {
 	unsigned long len;
-	dma_addr_t phy_addr;
+	unsigned long phy_addr;
 	struct ion_handle *ion_handle;
 	struct msm_cpp_buffer_info_t buff_info;
 };
@@ -160,6 +160,13 @@ struct msm_cpp_work_t {
 	struct work_struct my_work;
 	struct cpp_device *cpp_dev;
 };
+
+struct msm_cpp_clock_settings_t {
+	long clock_rate;
+	uint64_t avg;
+	uint64_t inst;
+};
+
 
 struct cpp_device {
 	struct platform_device *pdev;

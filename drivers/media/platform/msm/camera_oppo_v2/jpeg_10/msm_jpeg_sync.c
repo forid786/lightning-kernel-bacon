@@ -16,6 +16,7 @@
 #include <linux/list.h>
 #include <linux/uaccess.h>
 #include <linux/slab.h>
+#include <linux/ratelimit.h>
 #include <media/msm_jpeg.h>
 #include "msm_jpeg_sync.h"
 #include "msm_jpeg_core.h"
@@ -27,7 +28,7 @@
 #define JPEG_DEC_ID 2
 #define UINT32_MAX (0xFFFFFFFFU)
 
-inline void msm_jpeg_q_init(char const *name, struct msm_jpeg_q *q_p)
+static inline void msm_jpeg_q_init(char const *name, struct msm_jpeg_q *q_p)
 {
 	JPEG_DBG("%s:%d] %s\n", __func__, __LINE__, name);
 	q_p->name = name;
@@ -37,7 +38,7 @@ inline void msm_jpeg_q_init(char const *name, struct msm_jpeg_q *q_p)
 	q_p->unblck = 0;
 }
 
-inline void *msm_jpeg_q_out(struct msm_jpeg_q *q_p)
+static inline void *msm_jpeg_q_out(struct msm_jpeg_q *q_p)
 {
 	unsigned long flags;
 	struct msm_jpeg_q_entry *q_entry_p = NULL;
@@ -63,7 +64,7 @@ inline void *msm_jpeg_q_out(struct msm_jpeg_q *q_p)
 	return data;
 }
 
-inline int msm_jpeg_q_in(struct msm_jpeg_q *q_p, void *data)
+static inline int msm_jpeg_q_in(struct msm_jpeg_q *q_p, void *data)
 {
 	unsigned long flags;
 
@@ -85,7 +86,7 @@ inline int msm_jpeg_q_in(struct msm_jpeg_q *q_p, void *data)
 	return 0;
 }
 
-inline int msm_jpeg_q_in_buf(struct msm_jpeg_q *q_p,
+static int msm_jpeg_q_in_buf(struct msm_jpeg_q *q_p,
 	struct msm_jpeg_core_buf *buf)
 {
 	struct msm_jpeg_core_buf *buf_p;
@@ -103,7 +104,7 @@ inline int msm_jpeg_q_in_buf(struct msm_jpeg_q *q_p,
 	return 0;
 }
 
-inline int msm_jpeg_q_wait(struct msm_jpeg_q *q_p)
+static inline int msm_jpeg_q_wait(struct msm_jpeg_q *q_p)
 {
 	long tm = MAX_SCHEDULE_TIMEOUT; /* 500ms */
 	int rc;
@@ -146,7 +147,7 @@ inline int msm_jpeg_q_unblock(struct msm_jpeg_q *q_p)
 	return 0;
 }
 
-inline void msm_jpeg_outbuf_q_cleanup(struct msm_jpeg_device *pgmn_dev,
+static void msm_jpeg_outbuf_q_cleanup(struct msm_jpeg_device *pgmn_dev,
 	struct msm_jpeg_q *q_p, int domain_num)
 {
 	struct msm_jpeg_core_buf *buf_p;
@@ -163,7 +164,7 @@ inline void msm_jpeg_outbuf_q_cleanup(struct msm_jpeg_device *pgmn_dev,
 	q_p->unblck = 0;
 }
 
-inline void msm_jpeg_q_cleanup(struct msm_jpeg_q *q_p)
+static void msm_jpeg_q_cleanup(struct msm_jpeg_q *q_p)
 {
 	void *data;
 	JPEG_DBG("%s:%d] %s\n", __func__, __LINE__, q_p->name);
@@ -911,7 +912,7 @@ long __msm_jpeg_ioctl(struct msm_jpeg_device *pgmn_dev,
 		rc = msm_jpeg_ioctl_set_clk_rate(pgmn_dev, (void __user *) arg);
 		break;
 	default:
-		JPEG_PR_ERR(KERN_INFO "%s:%d] cmd = %d not supported\n",
+		pr_err_ratelimited("%s:%d] cmd = %d not supported\n",
 			__func__, __LINE__, _IOC_NR(cmd));
 		rc = -EINVAL;
 		break;
