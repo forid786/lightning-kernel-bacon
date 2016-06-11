@@ -131,12 +131,6 @@ static int eeprom_config_read_cal_data(struct msm_eeprom_ctrl_t *e_ctrl,
 		e_ctrl->cal_data.mapdata,
 		cdata->cfg.read_data.num_bytes);
 
-	/* should only be called once.  free kernel resource */
-	if (!rc) {
-		kfree(e_ctrl->cal_data.mapdata);
-		kfree(e_ctrl->cal_data.map);
-		memset(&e_ctrl->cal_data, 0, sizeof(e_ctrl->cal_data));
-	}
 	return rc;
 }
 
@@ -292,7 +286,6 @@ static int read_eeprom_memory(struct msm_eeprom_ctrl_t *e_ctrl,
 	}
 
 	eb_info = e_ctrl->eboard_info;
-
 	for (j = 0; j < block->num_map; j++) {
 		if (emap[j].saddr.addr) {
 			eb_info->i2c_slaveaddr = emap[j].saddr.addr;
@@ -406,13 +399,7 @@ static int msm_eeprom_parse_memory_map(struct device_node *of,
 		rc = of_property_read_u32_array(of, property,
 			(uint32_t *) &map[i].pageen, count);
 		if (rc < 0)
-			CDBG("%s: pageen not needed\n", __func__);
-
-		snprintf(property, PROPERTY_MAXSIZE, "qcom,saddr%d", i);
-		rc = of_property_read_u32_array(of, property,
-			(uint32_t *) &map[i].saddr.addr, 1);
-		if (rc < 0)
-			CDBG("%s: saddr not needed - block %d\n", __func__, i);
+			pr_err("%s: pageen not needed\n", __func__);
 
 		snprintf(property, PROPERTY_MAXSIZE, "qcom,poll%d", i);
 		rc = of_property_read_u32_array(of, property,
@@ -421,6 +408,12 @@ static int msm_eeprom_parse_memory_map(struct device_node *of,
 			pr_err("%s failed %d\n", __func__, __LINE__);
 			goto ERROR;
 		}
+
+		snprintf(property, PROPERTY_MAXSIZE, "qcom,saddr%d", i);
+		rc = of_property_read_u32_array(of, property,
+			(uint32_t *) &map[i].saddr.addr, 1);
+		if (rc < 0)
+			CDBG("%s: saddr not needed - block %d\n", __func__, i);
 
 		snprintf(property, PROPERTY_MAXSIZE, "qcom,mem%d", i);
 		rc = of_property_read_u32_array(of, property,
@@ -485,7 +478,7 @@ static int msm_eeprom_i2c_probe(struct i2c_client *client,
 	}
 	e_ctrl->eeprom_v4l2_subdev_ops = &msm_eeprom_subdev_ops;
 	e_ctrl->eeprom_mutex = &msm_eeprom_mutex;
-	CDBG("%s client = 0x%p\n", __func__, client);
+	CDBG("%s client = %x\n", __func__, (unsigned int)client);
 	e_ctrl->eboard_info = (struct msm_eeprom_board_info *)(id->driver_data);
 	if (!e_ctrl->eboard_info) {
 		pr_err("%s:%d board info NULL\n", __func__, __LINE__);
@@ -604,38 +597,6 @@ static int msm_eeprom_match_id(struct msm_eeprom_ctrl_t *e_ctrl)
 	return 0;
 }
 
-static int msm_eeprom_mm_dts(struct msm_eeprom_board_info *eb_info,
-				struct device_node *of_node)
-{
-	int rc = 0;
-	struct msm_eeprom_mm_t *mm_data = &eb_info->mm_data;
-
-	mm_data->mm_support =
-		of_property_read_bool(of_node,"qcom,mm-data-support");
-	if (!mm_data->mm_support)
-		return -EINVAL;
-	mm_data->mm_compression =
-		of_property_read_bool(of_node,"qcom,mm-data-compressed");
-	if (!mm_data->mm_compression)
-		pr_err("No MM compression data\n");
-
-	rc = of_property_read_u32(of_node, "qcom,mm-data-offset",
-				  &mm_data->mm_offset);
-	if (rc < 0)
-		pr_err("No MM offset data\n");
-
-	rc = of_property_read_u32(of_node, "qcom,mm-data-size",
-				  &mm_data->mm_size);
-	if (rc < 0)
-		pr_err("No MM size data\n");
-
-	CDBG("mm_support: mm_compr %d, mm_offset %d, mm_size %d\n",
-		mm_data->mm_compression,
-		mm_data->mm_offset,
-		mm_data->mm_size);
-	return 0;
-}
-
 static int msm_eeprom_get_dt_data(struct msm_eeprom_ctrl_t *e_ctrl)
 {
 	int rc = 0, i = 0;
@@ -714,6 +675,38 @@ ERROR2:
 ERROR1:
 	kfree(power_info->power_setting);
 	return rc;
+}
+
+static int msm_eeprom_mm_dts(struct msm_eeprom_board_info *eb_info,
+				struct device_node *of_node)
+{
+	int rc = 0;
+	struct msm_eeprom_mm_t *mm_data = &eb_info->mm_data;
+
+	mm_data->mm_support =
+		of_property_read_bool(of_node,"qcom,mm-data-support");
+	if (!mm_data->mm_support)
+		return -EINVAL;
+	mm_data->mm_compression =
+		of_property_read_bool(of_node,"qcom,mm-data-compressed");
+	if (!mm_data->mm_compression)
+		pr_err("No MM compression data\n");
+
+	rc = of_property_read_u32(of_node, "qcom,mm-data-offset",
+				  &mm_data->mm_offset);
+	if (rc < 0)
+		pr_err("No MM offset data\n");
+
+	rc = of_property_read_u32(of_node, "qcom,mm-data-size",
+				  &mm_data->mm_size);
+	if (rc < 0)
+		pr_err("No MM size data\n");
+
+	CDBG("mm_support: mm_compr %d, mm_offset %d, mm_size %d\n",
+		mm_data->mm_compression,
+		mm_data->mm_offset,
+		mm_data->mm_size);
+	return 0;
 }
 
 static int msm_eeprom_spi_setup(struct spi_device *spi)

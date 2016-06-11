@@ -141,6 +141,17 @@ static void msm_enqueue(struct msm_device_queue *queue,
 	spin_unlock_irqrestore(&queue->lock, flags);
 }
 
+static struct msm_cam_clk_info cpp_clk_info[] = {
+	{"camss_top_ahb_clk", -1},
+	{"vfe_clk_src", 266670000},
+	{"camss_vfe_vfe_clk", -1},
+	{"iface_clk", -1},
+	{"cpp_core_clk", 266670000},
+	{"cpp_iface_clk", -1},
+	{"cpp_bus_clk", -1},
+	{"micro_iface_clk", -1},
+};
+
 #define msm_cpp_empty_list(queue, member) { \
 	unsigned long flags; \
 	struct msm_queue_cmd *qcmd = NULL; \
@@ -156,8 +167,6 @@ static void msm_enqueue(struct msm_device_queue *queue,
 		spin_unlock_irqrestore(&queue->lock, flags); \
 	} \
 }
-
-static struct msm_cam_clk_info cpp_clk_info[CPP_CLK_INFO_MAX];
 
 static int msm_cpp_notify_frame_done(struct cpp_device *cpp_dev,
 	uint8_t put_buf);

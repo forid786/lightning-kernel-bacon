@@ -110,15 +110,6 @@ config IMX134
 		HFR @60fps and @120fps,
 		Video HDR support.
 
-config IMX132
-	bool "Sensor IMX132 (BAYER 2M)"
-	depends on MSMB_CAMERA
-	---help---
-		Sony 2 MP Bayer Sensor with auto focus, uses
-		2 mipi lanes, preview config = 1920 x 1080 at 30 fps,
-		snapshot config = 1920 x 1080 at 30 fps,
-		Video HDR support.
-
 config OV9724
 	bool "Sensor OV9724 (BAYER 2M)"
 	depends on MSMB_CAMERA
@@ -172,15 +163,6 @@ config GC0339
 		It supports 1 or 2 mipi lanes.
 		Preview and snapshot resolution shall be 640*480 at 30 fps,
 		It does not support auto focus.
-
-config IMX214
-	bool "Sensor IMX214 (BAYER 12M)"
-	depends on MSMB_CAMERA
-	---help---
-		Sony 12 MP Bayer Sensor with auto focus, uses
-		4 mipi lanes, preview config = 2104 x 1560 at 49 fps,
-		snapshot config = 4208 x 3120 at 24 fps,
-		Video HDR support.
 
 config OV8825
 	bool "OmniVision OV8825 (BAYER 8MP)"
